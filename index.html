@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swapi API Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    button {
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #result, #error, #loading {
+      margin-top: 20px;
+    }
+    #loading {
+      display: none;
+    }
+    #searchForm, #resultHeader {
+      margin-bottom: 20px;
+    }
+    input, select {
+      margin: 5px;
+      padding: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="resultHeader">Результаты запроса:</h1>
+  <form id="searchForm">
+    <label for="entityType">Тип сущности:</label>
+    <select id="entityType">
+      <option value="people">Персонаж</option>
+      <option value="films">Фильм</option>
+      <option value="planets">Планета</option>
+      <option value="species">Вид</option>
+      <option value="starships">Звездолет</option>
+      <option value="vehicles">Транспорт</option>
+    </select>
+    <br>
+    <label for="entityId">Идентификатор:</label>
+    <input type="number" id="entityId" min="1" max="10" required>
+    <br>
+    <button type="button" onclick="getData()">Получить данные</button>
+  </form>
+  <div id="loading">Идет загрузка...</div>
+  <div id="result"></div>
+  <div id="error"></div>
+
+  <script>
+    function getData() {
+      const resultElement = document.getElementById('result');
+      const errorElement = document.getElementById('error');
+      const loadingElement = document.getElementById('loading');
+      const resultHeaderElement = document.getElementById('resultHeader');
+
+      resultElement.textContent = '';
+      errorElement.textContent = '';
+      loadingElement.style.display = 'block';
+      resultHeaderElement.textContent = 'Результаты запроса:';
+
+      const entityType = document.getElementById('entityType').value;
+      const entityId = document.getElementById('entityId').value;
+
+      fetch(`https://swapi.dev/api/${entityType}/${entityId}/`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Сервер не доступен');
+          }
+          return response.json();
+        })
+        .then(data => {
+          loadingElement.style.display = 'none';
+          resultHeaderElement.textContent = `Результаты запроса (${entityType} с идентификатором ${entityId}):`;
+          resultElement.textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+          loadingElement.style.display = 'none';
+          resultHeaderElement.textContent = 'Результаты запроса:';
+          errorElement.textContent = `Ошибка: ${error.message}`;
+        });
+    }
+  </script>
+</body>
+</html>
+
